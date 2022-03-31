@@ -21,9 +21,13 @@ class AgentUpdateEndPoint(OpenApiEndPoint):
     def post(self, request):
         try:
             param = parse_data(request.read())
-            agent_id = param.get('agentId', None)
+            print("======")
+            print(param)
+            agent_id = int(param.get('agentId', None))
             server_addr = param.get('serverAddr', None)
+            server_port = int(param.get('serverPort', None))
         except Exception as e:
+            print(e)
             return R.failure(msg="参数错误")
         user = request.user
         # server_port = param.get('serverPort')
@@ -38,7 +42,8 @@ class AgentUpdateEndPoint(OpenApiEndPoint):
                 return R.failure(msg="agent no register")
             else:
                 server.ip = server_addr
+                server.port = server_port
                 server.update_time = int(time.time())
-                server.save(update_fields=['ip',  'update_time'])
+                server.save(update_fields=['ip', "port", 'update_time'])
         logger.info(_('Server record update success'))
         return R.success(msg="success update")

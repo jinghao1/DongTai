@@ -146,7 +146,7 @@ class VulEngine(object):
                         from urllib.parse import urlparse
                         o = urlparse(url)
                         if origin_source not in f'{o.scheme}://{o.netloc}{o.path}':
-                            print(origin_source, url)
+
                             self.vul_stack[index] = []
                             break
             vul_source_signature = self.vul_source_signature

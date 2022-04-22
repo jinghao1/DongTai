@@ -115,7 +115,6 @@ def search_and_save_vul(engine, method_pool_model, method_pool, strategy):
     :return: None
     """
     logger.info(f'current sink rule is {strategy.get("type")}')
-    print(f'current sink rule is {strategy.get("type")}')
     queryset = IastStrategyModel.objects.filter(vul_type=strategy['type'], state=const.STRATEGY_ENABLE)
     if queryset.values('id').exists() is False:
         logger.error(f'current method pool hit rule {strategy.get("type")}, but no vul strategy.')
@@ -196,19 +195,12 @@ def search_vul_from_method_pool(method_pool_id):
             return
         check_response_header(method_pool_model)
         check_response_content(method_pool_model)
-        # print(method_pool_model.agent.user.id)
-        # print("=====3333333333333=")
-        # print(method_pool_model.id)
         strategies = load_sink_strategy(method_pool_model.agent.user, method_pool_model.agent.language)
         engine = VulEngine()
         method_pool = json.loads(method_pool_model.method_pool) if method_pool_model else []
         engine.method_pool = method_pool
         if method_pool:
-            # print(engine.method_pool_signatures)
             for strategy in strategies:
-                # print("lllllllll")
-                # print(strategy.get('value'))
-                # print("========")
                 if strategy.get('value') in engine.method_pool_signatures:
                     search_and_save_vul(engine, method_pool_model, method_pool, strategy)
         logger.info(f'漏洞检测成功')

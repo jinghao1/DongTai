@@ -6,15 +6,14 @@ from celery import shared_task
 from dongtai.models.agent_webhook_setting import IastAgentUploadTypeUrl
 
 
-# only used by 58, maybe to del
-@shared_task(queue='dongtai-report-task')
+@shared_task(queue='dongtai-vul-web-hook-task')
 def forward_for_upload(id, reports, report_type):
 
     """
-    agent 流量转发 web hook
+    漏洞检出 流量转发 web hook 上报
     :return:
     """
-    print("search agent forward for url time {}, type_id:{}".format(str(int(time.time())), str(report_type)))
+
     typeData = IastAgentUploadTypeUrl.objects.filter(user_id=id, type_id=report_type).order_by("-create_time").first()
     # print(report_type)
 

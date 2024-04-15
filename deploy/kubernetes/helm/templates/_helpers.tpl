@@ -173,22 +173,47 @@ readinessProbe:
     command:
     - bash
     - -c
-    - celery -A dongtai_conf inspect ping -d celery@$(hostname)
+    - python /opt/dongtai/deploy/scripts/celery_worker_liveness.py
   {{- include "deploy.Probehealthcheck" . | nindent 2 }}
 livenessProbe:
   exec:
     command:
     - bash
     - -c
-    - celery -A dongtai_conf inspect ping -d celery@$(hostname)
+    - python /opt/dongtai/deploy/scripts/celery_worker_liveness.py
   {{- include "deploy.Probehealthcheck" . | nindent 2 }}
 startupProbe:
   exec:
     command:
     - bash
     - -c
-    - celery -A dongtai_conf inspect ping -d celery@$(hostname)
+    - python /opt/dongtai/deploy/scripts/celery_worker_liveness.py
   {{- include "deploy.Probehealthcheck" . | nindent 2 }}
+{{- end -}}
+
+{{- define "deploy.HttpProbehealthcheck" -}}
+failureThreshold: 3
+initialDelaySeconds: 30
+periodSeconds: 10
+successThreshold: 1
+timeoutSeconds: 5
+{{- end -}}
+{{- define "deploy.HttpProbe" -}}
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 1234
+  {{- include "deploy.HttpProbehealthcheck" . | nindent 2 }}
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 1234
+  {{- include "deploy.HttpProbehealthcheck" . | nindent 2 }}
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 1234
+  {{- include "deploy.HttpProbehealthcheck" . | nindent 2 }}
 {{- end -}}
 
 {{- define "deploy.resources" -}}
@@ -295,6 +320,10 @@ Create the name of the service account to use
     domain ={{.Values.Dongtai_url}}
     domain_vul ={{.Values.Dongtai_url}}
     dast_token ={{.Values.usb.usb_token}}
+
+    [health_check]
+    heartbeat = false
+    heartbeat_server_url = http://dongtai-server-svc/api/v2/health_check/report
 {{- end -}}
 
 {{/*

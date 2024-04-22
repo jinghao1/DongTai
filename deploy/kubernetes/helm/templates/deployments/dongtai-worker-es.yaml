@@ -40,8 +40,14 @@ spec:
           env:
             - name: DONGTAI_CONCURRENCY
               value: {{.Values.build.env_es}}
+            {{- if .Values.httphealthcheck }}
+            - name: HTTP_HEALTH_CHECK_PORT
+              value: "1234"
+            {{- end }}
           {{- include "deploy.config" . | nindent 10 }}
-          {{- if .Values.healthcheck }}
+          {{- if .Values.tcphealthcheck }}
           {{- include "deploy.Probe" . | nindent 10 }}
+          {{- else if .Values.httphealthcheck }}
+          {{- include "deploy.HttpProbe" . | nindent 10 }}
           {{- end }}
       {{- include "deploy.config.vo" . | nindent 6 }}

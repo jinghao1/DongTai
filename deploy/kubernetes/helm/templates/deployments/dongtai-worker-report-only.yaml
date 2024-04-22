@@ -38,9 +38,16 @@ spec:
           image: {{ .Values.images }}/dongtai-server:{{ .Values.tag }}
           command: [ "/bin/sh","/opt/dongtai/deploy/docker/entrypoint.sh" ]
           args: [ "worker-report-only" ]
+          {{- if .Values.httphealthcheck }}
+          env:
+            - name: HTTP_HEALTH_CHECK_PORT
+              value: "1234"
+          {{- end }}
           {{- include "deploy.config" . | nindent 10 }}
-          {{- if .Values.healthcheck }}
+          {{- if .Values.tcphealthcheck }}
           {{- include "deploy.Probe" . | nindent 10 }}
+          {{- else if .Values.httphealthcheck }}
+          {{- include "deploy.HttpProbe" . | nindent 10 }}
           {{- end }}
       {{- include "deploy.config.vo" . | nindent 6 }}
 {{- end }}

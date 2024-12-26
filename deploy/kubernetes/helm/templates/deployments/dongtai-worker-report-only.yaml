@@ -38,6 +38,11 @@ spec:
           image: {{ .Values.images }}/dongtai-server:{{ .Values.tag }}
           command: [ "/bin/sh","/opt/dongtai/deploy/docker/entrypoint.sh" ]
           args: [ "worker-report-only" ]
+          {{- if .Values.storage.persistentVolumeClaim }}
+          volumeMounts:
+          - name: {{ template "dongtai.fullname" . }}-log-path
+            mountPath: /tmp/logstash
+          {{- end }}
           {{- if .Values.httphealthcheck }}
           env:
             - name: HTTP_HEALTH_CHECK_PORT
@@ -50,4 +55,10 @@ spec:
           {{- include "deploy.HttpProbe" . | nindent 10 }}
           {{- end }}
       {{- include "deploy.config.vo" . | nindent 6 }}
+      {{- if .Values.storage.persistentVolumeClaim }}
+      volumes:
+      - name: {{ template "dongtai.fullname" . }}-log-path
+        persistentVolumeClaim:
+      {{ include "deploy.config.persistentVolumeClaim" . }}
+{{- end }}
 {{- end }}

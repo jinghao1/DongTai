@@ -59,6 +59,6 @@ spec:
       volumes:
       - name: {{ template "dongtai.fullname" . }}-log-path
         persistentVolumeClaim:
-      {{ include "deploy.config.persistentVolumeClaim" . }}
-{{- end }}
+          {{ include "deploy.config.persistentVolumeClaim" . }}
+      {{- end }}
 {{- end }}
